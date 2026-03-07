@@ -16,10 +16,24 @@ For each issue you find, provide:
 
 Also detect the programming language of the submitted code.
 
-Be thorough. Find real issues — do not invent problems that don't exist."""
+Be thorough. Find real issues — do not invent problems that don't exist.
+
+Respond with valid JSON matching this schema:
+{
+  "language": "<detected language>",
+  "summary": "<brief overall summary>",
+  "issues": [
+    {
+      "line_ref": "<e.g. L12 or L15-18>",
+      "issue_type": "<bug|security|performance|style|code_smell|logic_error>",
+      "severity": "<critical|warning|suggestion>",
+      "explanation": "<clear description>"
+    }
+  ]
+}"""
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+@retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=2, min=5, max=60))
 async def _invoke_reviewer(llm, messages):
     return await llm.ainvoke(messages)
 
@@ -28,7 +42,7 @@ async def reviewer_node(state: AgentState) -> dict:
     llm = ChatGroq(
         model=settings.groq_model,
         api_key=settings.groq_api_key,
-    ).with_structured_output(ReviewerOutput)
+    ).with_structured_output(ReviewerOutput, method="json_mode")
 
     language_hint = ""
     if state["language"] and state["language"] != "auto":

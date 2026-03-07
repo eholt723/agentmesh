@@ -20,10 +20,20 @@ Decision rules:
 - "retry": overall_score 50-69 — fixable problems, worth another attempt
 - "fail": overall_score < 50 — fundamental problems with the fix
 
-Provide specific, actionable feedback explaining your scores and what would need to change."""
+Provide specific, actionable feedback explaining your scores and what would need to change.
+
+Respond with valid JSON matching this schema:
+{
+  "correctness": {"score": <0-100>, "notes": "<explanation>"},
+  "completeness": {"score": <0-100>, "notes": "<explanation>"},
+  "code_quality": {"score": <0-100>, "notes": "<explanation>"},
+  "overall_score": <0-100>,
+  "decision": "<pass|retry|fail>",
+  "feedback": "<specific actionable feedback>"
+}"""
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+@retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=2, min=5, max=60))
 async def _invoke_evaluator(llm, messages):
     return await llm.ainvoke(messages)
 
@@ -41,7 +51,7 @@ async def evaluator_node(state: AgentState) -> dict:
     llm = ChatGroq(
         model=settings.groq_model,
         api_key=settings.groq_api_key,
-    ).with_structured_output(EvaluatorOutput)
+    ).with_structured_output(EvaluatorOutput, method="json_mode")
 
     issues_text = _format_issues(state["reviewer_output"].issues)
     changelog_text = "\n".join(

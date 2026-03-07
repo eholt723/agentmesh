@@ -1,9 +1,12 @@
+import json
+import re
+
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config import settings
-from models import AgentState, FixerOutput, Issue
+from models import AgentState, FixEntry, FixerOutput, Issue
 
 SYSTEM_PROMPT = """You are an expert software engineer tasked with fixing code issues identified by a code reviewer.
 
@@ -18,19 +21,53 @@ Your job:
 - Do not introduce new bugs or change working functionality
 - For each fix, document what you changed and which issue it resolves
 
-Return the complete fixed code (not just the changed parts) and a detailed changelog."""
+Return your response in EXACTLY this format — no other text before or after:
+
+<fixed_code>
+[the complete fixed source code, exactly as it should appear in the file]
+</fixed_code>
+<changelog>
+[{"issue_ref": "CRITICAL L12", "change_made": "description of what was changed and why"}, ...]
+</changelog>"""
 
 SYSTEM_PROMPT_RETRY = """You are an expert software engineer fixing code issues. This is a RETRY pass.
 
 A previous fix attempt was evaluated and found insufficient. You must address the evaluator's feedback
 in addition to the original reviewer issues.
 
-Fix ALL critical and warning issues and address the evaluator's specific concerns."""
+Fix ALL critical and warning issues and address the evaluator's specific concerns.
+
+Return your response in EXACTLY this format — no other text before or after:
+
+<fixed_code>
+[the complete fixed source code, exactly as it should appear in the file]
+</fixed_code>
+<changelog>
+[{"issue_ref": "reference to the original issue", "change_made": "description of what was changed and why"}, ...]
+</changelog>"""
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+@retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=2, min=5, max=60))
 async def _invoke_fixer(llm, messages):
     return await llm.ainvoke(messages)
+
+
+def _parse_fixer_response(content: str) -> FixerOutput:
+    # Extract fixed code between <fixed_code> tags
+    code_match = re.search(r"<fixed_code>\n?(.*?)\n?</fixed_code>", content, re.DOTALL)
+    fixed_code = code_match.group(1) if code_match else content
+
+    # Extract changelog JSON between <changelog> tags
+    changelog: list[FixEntry] = []
+    log_match = re.search(r"<changelog>\n?(.*?)\n?</changelog>", content, re.DOTALL)
+    if log_match:
+        try:
+            entries = json.loads(log_match.group(1).strip())
+            changelog = [FixEntry(**e) for e in entries]
+        except (json.JSONDecodeError, TypeError, KeyError):
+            pass
+
+    return FixerOutput(fixed_code=fixed_code, changelog=changelog)
 
 
 def _format_issues(issues: list[Issue]) -> str:
@@ -49,7 +86,7 @@ async def fixer_node(state: AgentState) -> dict:
     llm = ChatGroq(
         model=settings.groq_model,
         api_key=settings.groq_api_key,
-    ).with_structured_output(FixerOutput)
+    )
 
     issues_text = _format_issues(state["reviewer_output"].issues)
 
@@ -71,7 +108,8 @@ async def fixer_node(state: AgentState) -> dict:
         HumanMessage(content=human_content),
     ]
 
-    result: FixerOutput = await _invoke_fixer(llm, messages)
+    response = await _invoke_fixer(llm, messages)
+    result = _parse_fixer_response(response.content)
 
     return {
         "fixer_output": result,
