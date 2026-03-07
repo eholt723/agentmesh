@@ -1,6 +1,21 @@
 import { useEffect, useRef } from 'react'
-import hljs from 'highlight.js'
+import hljs from 'highlight.js/lib/core'
+import python from 'highlight.js/lib/languages/python'
+import javascript from 'highlight.js/lib/languages/javascript'
+import typescript from 'highlight.js/lib/languages/typescript'
+import java from 'highlight.js/lib/languages/java'
+import csharp from 'highlight.js/lib/languages/csharp'
+import go from 'highlight.js/lib/languages/go'
+import xml from 'highlight.js/lib/languages/xml'
 import 'highlight.js/styles/github-dark.css'
+
+hljs.registerLanguage('python', python)
+hljs.registerLanguage('javascript', javascript)
+hljs.registerLanguage('typescript', typescript)
+hljs.registerLanguage('java', java)
+hljs.registerLanguage('csharp', csharp)
+hljs.registerLanguage('go', go)
+hljs.registerLanguage('xml', xml)
 
 function CodeBlock({ code, language }) {
   const ref = useRef(null)
