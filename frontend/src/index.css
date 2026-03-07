@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 font-sans;
+  }
+}
+
+/* highlight.js theme overrides — dark */
+.hljs {
+  background: transparent !important;
+  padding: 0 !important;
+}
