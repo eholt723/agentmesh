@@ -225,7 +225,7 @@ export default function App() {
         {detectedLanguage && (
           <div className="flex items-center gap-2 -mt-4">
             <span className="text-xs text-gray-400 dark:text-gray-500">Detected language:</span>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 capitalize">
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400 capitalize">
               {detectedLanguage}
             </span>
           </div>

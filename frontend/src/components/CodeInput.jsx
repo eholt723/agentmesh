@@ -42,7 +42,7 @@ export function CodeInput({ onSubmit, streaming }) {
             onClick={() => setMode('text')}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               mode === 'text'
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-cyan-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
@@ -53,7 +53,7 @@ export function CodeInput({ onSubmit, streaming }) {
             onClick={() => setMode('file')}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               mode === 'file'
-                ? 'bg-indigo-600 text-white'
+                ? 'bg-cyan-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}
           >
@@ -64,7 +64,7 @@ export function CodeInput({ onSubmit, streaming }) {
         <select
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
-          className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+          className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-cyan-500 focus:outline-none"
         >
           {LANGUAGES.map((l) => (
             <option key={l.value} value={l.value}>
@@ -80,12 +80,12 @@ export function CodeInput({ onSubmit, streaming }) {
           onChange={(e) => setCode(e.target.value)}
           placeholder="Paste your code here..."
           rows={14}
-          className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600 focus:ring-1 focus:ring-indigo-500 focus:outline-none resize-y"
+          className="w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg p-4 font-mono text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600 focus:ring-1 focus:ring-cyan-500 focus:outline-none resize-y"
         />
       ) : (
         <div
           onClick={() => fileRef.current?.click()}
-          className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer hover:border-indigo-500 transition-colors bg-gray-50 dark:bg-gray-900"
+          className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer hover:border-cyan-500 transition-colors bg-gray-50 dark:bg-gray-900"
         >
           <input
             ref={fileRef}
@@ -96,7 +96,7 @@ export function CodeInput({ onSubmit, streaming }) {
           />
           {file ? (
             <div className="text-center">
-              <p className="text-indigo-500 dark:text-indigo-400 font-medium">{file.name}</p>
+              <p className="text-cyan-500 dark:text-cyan-400 font-medium">{file.name}</p>
               <p className="text-gray-400 text-sm mt-1">{(file.size / 1024).toFixed(1)} KB</p>
             </div>
           ) : (
@@ -115,7 +115,7 @@ export function CodeInput({ onSubmit, streaming }) {
         <button
           type="submit"
           disabled={streaming || (mode === 'text' ? !code.trim() : !file)}
-          className="shrink-0 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-500 text-white font-medium rounded-lg transition-colors"
+          className="shrink-0 px-6 py-2.5 bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-500 text-white font-medium rounded-lg transition-colors"
         >
           {streaming ? 'Reviewing...' : 'Review Code'}
         </button>
