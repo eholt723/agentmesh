@@ -108,13 +108,18 @@ export function CodeInput({ onSubmit, streaming }) {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={streaming || (mode === 'text' ? !code.trim() : !file)}
-        className="self-end px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-500 text-white font-medium rounded-lg transition-colors"
-      >
-        {streaming ? 'Reviewing...' : 'Review Code'}
-      </button>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-xs text-gray-400 dark:text-gray-600">
+          Best results under 300 lines. Larger files may hit free-tier rate limits.
+        </p>
+        <button
+          type="submit"
+          disabled={streaming || (mode === 'text' ? !code.trim() : !file)}
+          className="shrink-0 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-500 text-white font-medium rounded-lg transition-colors"
+        >
+          {streaming ? 'Reviewing...' : 'Review Code'}
+        </button>
+      </div>
     </form>
   )
 }
