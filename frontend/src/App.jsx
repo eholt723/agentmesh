@@ -172,9 +172,13 @@ export default function App() {
           <div className="space-y-1">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
               AgentMesh
+              <span className="font-normal text-gray-400 dark:text-gray-500">
+                {' '}— Multi-Agent Code Review System
+              </span>
             </h1>
             <p className="text-sm text-gray-500">
-              Multi-agent code review — Reviewer · Fixer · Evaluator
+              Reviewer · Fixer · Evaluator
+              <span className="text-gray-400 dark:text-gray-600"> · llama-3.3-70b · Groq</span>
             </p>
           </div>
 
