@@ -27,7 +27,7 @@ export function useSSEStream({ onEvent, onDone, onError }) {
       })
 
       if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`)
+        throw new Error(`HTTP_${response.status}`)
       }
 
       const reader = response.body.getReader()

@@ -88,6 +88,7 @@ export default function App() {
   const [detectedLanguage, setDetectedLanguage] = useState('')
   const [isRetrying, setIsRetrying] = useState(false)
   const [fixPassCount, setFixPassCount] = useState(0)
+  const [errorMessage, setErrorMessage] = useState('')
 
   // Apply/remove dark class on <html>
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function App() {
     setDetectedLanguage('')
     setIsRetrying(false)
     setFixPassCount(0)
+    setErrorMessage('')
   }
 
   function addLogEntry(type) {
@@ -149,10 +151,19 @@ export default function App() {
     }
   }, [])
 
+  function handleError(msg) {
+    const isRateLimit = msg?.includes('HTTP_429') || msg?.toLowerCase().includes('rate limit')
+    setErrorMessage(
+      isRateLimit
+        ? 'Rate limit reached. Try a smaller file or wait a moment before resubmitting.'
+        : 'Something went wrong. Check the activity log for details.'
+    )
+  }
+
   const { streaming, start } = useSSEStream({
     onEvent: handleEvent,
     onDone: () => {},
-    onError: (msg) => console.error('Stream error:', msg),
+    onError: handleError,
   })
 
   function handleSubmit(params) {
@@ -210,6 +221,31 @@ export default function App() {
           <ActivityLog entries={activityLog} streaming={streaming} />
         )}
 
+        {/* Detected language badge */}
+        {detectedLanguage && (
+          <div className="flex items-center gap-2 -mt-4">
+            <span className="text-xs text-gray-400 dark:text-gray-500">Detected language:</span>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 capitalize">
+              {detectedLanguage}
+            </span>
+          </div>
+        )}
+
+        {/* Error banner */}
+        {errorMessage && (
+          <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
+            <span>{errorMessage}</span>
+            <button
+              type="button"
+              onClick={() => setErrorMessage('')}
+              className="shrink-0 text-red-400 hover:text-red-600 dark:hover:text-red-300"
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Results */}
         {hasResults && (
           <div className="space-y-6">
@@ -241,7 +277,7 @@ export default function App() {
       {/* Footer attribution */}
       <div className="fixed bottom-4 right-4 text-right select-none leading-tight">
         <p className="text-xs text-gray-400 dark:text-gray-700">Created by</p>
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-600">Eric Holt</p>
+        <p className="text-xs font-medium text-gray-400 dark:text-gray-500">Eric Holt</p>
       </div>
     </div>
   )
