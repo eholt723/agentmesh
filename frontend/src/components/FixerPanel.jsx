@@ -17,6 +17,10 @@ hljs.registerLanguage('csharp', csharp)
 hljs.registerLanguage('go', go)
 hljs.registerLanguage('xml', xml)
 
+// ------------------------------
+// Code block — always dark background
+// ------------------------------
+
 function CodeBlock({ code, language }) {
   const ref = useRef(null)
 
@@ -38,6 +42,10 @@ function CodeBlock({ code, language }) {
   )
 }
 
+// ------------------------------
+// Component
+// ------------------------------
+
 export function FixerPanel({ data, language, isRetry }) {
   if (!data) return null
 
@@ -46,9 +54,9 @@ export function FixerPanel({ data, language, isRetry }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <h2 className="text-base font-semibold text-gray-200">Fixer</h2>
+        <h2 className="text-base font-semibold text-gray-800 dark:text-gray-200">Fixer</h2>
         {isRetry && (
-          <span className="text-xs px-2 py-0.5 bg-orange-900/50 text-orange-300 border border-orange-700 rounded">
+          <span className="text-xs px-2 py-0.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 border border-orange-300 dark:border-orange-700 rounded">
             retry pass
           </span>
         )}
@@ -58,13 +66,13 @@ export function FixerPanel({ data, language, isRetry }) {
 
       {changelog.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-400">Changelog</h3>
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Changelog</h3>
           {changelog.map((entry, i) => (
-            <div key={i} className="flex gap-3 text-sm bg-gray-900 border border-gray-800 rounded-lg p-3">
-              <span className="text-green-400 mt-0.5 shrink-0">+</span>
+            <div key={i} className="flex gap-3 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-3">
+              <span className="text-green-500 dark:text-green-400 mt-0.5 shrink-0">+</span>
               <div>
-                <p className="text-gray-300">{entry.change_made}</p>
-                <p className="text-gray-600 text-xs mt-0.5">resolves: {entry.issue_ref}</p>
+                <p className="text-gray-700 dark:text-gray-300">{entry.change_made}</p>
+                <p className="text-gray-400 dark:text-gray-600 text-xs mt-0.5">resolves: {entry.issue_ref}</p>
               </div>
             </div>
           ))}

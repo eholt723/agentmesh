@@ -4,12 +4,23 @@
 
 @layer base {
   body {
-    @apply bg-gray-950 text-gray-100 font-sans;
+    @apply bg-gray-50 text-gray-900 font-sans;
+  }
+  .dark body {
+    @apply bg-gray-950 text-gray-100;
   }
 }
 
-/* highlight.js theme overrides — dark */
+/* highlight.js theme overrides */
 .hljs {
   background: transparent !important;
   padding: 0 !important;
+}
+
+/* Score ring SVG track — switches with theme */
+.score-ring-track {
+  stroke: #e5e7eb;
+}
+.dark .score-ring-track {
+  stroke: #1f2937;
 }
