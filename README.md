@@ -1,6 +1,6 @@
 ---
 title: AgentMesh
-emoji: ""
+emoji: 🔗
 colorFrom: gray
 colorTo: blue
 sdk: docker
