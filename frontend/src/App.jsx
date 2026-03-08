@@ -193,6 +193,13 @@ export default function App() {
           </button>
         </div>
 
+        {/* Description */}
+        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed -mt-4">
+          Submit code for review. Three agents collaborate in sequence: the Reviewer identifies
+          issues, the Fixer corrects them, and the Evaluator scores the fix for correctness —
+          triggering a second pass if the score falls short.
+        </p>
+
         {/* Input */}
         <Panel>
           <CodeInput onSubmit={handleSubmit} streaming={streaming} />
