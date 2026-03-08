@@ -35,8 +35,8 @@ export function ActivityLog({ entries, streaming }) {
           <div key={i} className={`flex items-center gap-2 text-sm ${meta.color}`}>
             {showSpinner ? <Spinner /> : <span className="w-3 h-3 text-xs">✓</span>}
             <span>{meta.label}</span>
-            {entry.timestamp && (
-              <span className="ml-auto text-gray-400 dark:text-gray-600 text-xs">{entry.timestamp}</span>
+            {entry.elapsed && (
+              <span className="ml-auto text-gray-400 dark:text-gray-600 text-xs tabular-nums">{entry.elapsed}</span>
             )}
           </div>
         )

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityLog } from './components/ActivityLog'
 import { CodeInput } from './components/CodeInput'
 import { EvaluatorPanel } from './components/EvaluatorPanel'
@@ -56,8 +56,11 @@ function CollapsiblePanel({ label, defaultOpen = true, children }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 px-5 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
+        className="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
       >
+        <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          {label}
+        </span>
         <svg
           className={`w-2.5 h-2.5 text-gray-400 transition-transform duration-200 ${open ? 'rotate-90' : ''}`}
           fill="currentColor"
@@ -65,9 +68,6 @@ function CollapsiblePanel({ label, defaultOpen = true, children }) {
         >
           <path d="M0 0l6 5-6 5V0z" />
         </svg>
-        <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-          {label}
-        </span>
       </button>
       {open && <div className="px-5 pb-5">{children}</div>}
     </div>
@@ -80,6 +80,7 @@ function CollapsiblePanel({ label, defaultOpen = true, children }) {
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(true)
+  const streamStartRef = useRef(null)
   const [reviewerData, setReviewerData] = useState(null)
   const [fixerData, setFixerData] = useState(null)
   const [evaluatorData, setEvaluatorData] = useState(null)
@@ -104,10 +105,10 @@ export default function App() {
   }
 
   function addLogEntry(type) {
-    setActivityLog((prev) => [
-      ...prev,
-      { type, timestamp: new Date().toLocaleTimeString() },
-    ])
+    const elapsed = streamStartRef.current
+      ? ((Date.now() - streamStartRef.current) / 1000).toFixed(1) + 's'
+      : null
+    setActivityLog((prev) => [...prev, { type, elapsed }])
   }
 
   const handleEvent = useCallback((event) => {
@@ -155,6 +156,7 @@ export default function App() {
   })
 
   function handleSubmit(params) {
+    streamStartRef.current = Date.now()
     reset()
     start(params)
   }
@@ -226,8 +228,9 @@ export default function App() {
       </div>
 
       {/* Footer attribution */}
-      <div className="fixed bottom-4 right-4 text-xs text-gray-400 dark:text-gray-600 select-none">
-        Created by Eric Holt
+      <div className="fixed bottom-4 right-4 text-right select-none leading-tight">
+        <p className="text-xs text-gray-400 dark:text-gray-700">Created by</p>
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-600">Eric Holt</p>
       </div>
     </div>
   )
