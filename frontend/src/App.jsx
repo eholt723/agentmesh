@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import { ActivityLog } from './components/ActivityLog'
 import { CodeInput } from './components/CodeInput'
 import { EvaluatorPanel } from './components/EvaluatorPanel'
 import { FixerPanel } from './components/FixerPanel'
 import { ReviewerPanel } from './components/ReviewerPanel'
 import { useSSEStream } from './hooks/useSSEStream'
+import About from './pages/About'
 
 // ------------------------------
 // Icons
@@ -70,6 +72,67 @@ function CollapsiblePanel({ label, defaultOpen = true, children }) {
         </svg>
       </button>
       {open && <div className="px-5 pb-5">{children}</div>}
+    </div>
+  )
+}
+
+// ------------------------------
+// Root layout
+// ------------------------------
+
+function AppShell({ darkMode, setDarkMode, children }) {
+  const location = useLocation()
+  const isAbout = location.pathname === '/about'
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+              <Link to="/" className="hover:opacity-80 transition-opacity">
+                AgentMesh
+                <span className="font-normal text-gray-400 dark:text-gray-500">
+                  {' '}— Multi-Agent Code Review System
+                </span>
+              </Link>
+            </h1>
+            <p className="text-sm text-gray-500">
+              Reviewer · Fixer · Evaluator
+              <span className="text-gray-400 dark:text-gray-600"> · llama-3.3-70b · Groq</span>
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to={isAbout ? '/' : '/about'}
+              className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            >
+              {isAbout ? 'App' : 'About'}
+            </Link>
+
+            {/* Light/dark toggle */}
+            <button
+              type="button"
+              onClick={() => setDarkMode((d) => !d)}
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Toggle light/dark mode"
+            >
+              {darkMode ? <SunIcon /> : <MoonIcon />}
+            </button>
+          </div>
+        </div>
+
+        {children}
+      </div>
+
+      {/* Footer attribution */}
+      <div className="fixed bottom-4 right-4 text-right select-none leading-tight">
+        <p className="text-xs text-gray-400 dark:text-gray-700">Created by</p>
+        <p className="text-xs font-medium text-gray-400 dark:text-gray-500">Eric Holt</p>
+      </div>
     </div>
   )
 }
@@ -174,111 +237,85 @@ export default function App() {
 
   const hasResults = reviewerData || fixerData || evaluatorData
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+  const mainContent = (
+    <div className="space-y-8">
+      {/* Description */}
+      <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed -mt-4">
+        Submit code for review. Three agents collaborate in sequence: the Reviewer identifies
+        issues, the Fixer corrects them, and the Evaluator scores the fix for correctness —
+        triggering a second pass if the score falls short.
+      </p>
 
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-              AgentMesh
-              <span className="font-normal text-gray-400 dark:text-gray-500">
-                {' '}— Multi-Agent Code Review System
-              </span>
-            </h1>
-            <p className="text-sm text-gray-500">
-              Reviewer · Fixer · Evaluator
-              <span className="text-gray-400 dark:text-gray-600"> · llama-3.3-70b · Groq</span>
-            </p>
-          </div>
+      {/* Input */}
+      <Panel>
+        <CodeInput onSubmit={handleSubmit} streaming={streaming} />
+      </Panel>
 
-          {/* Light/dark toggle */}
+      {/* Activity log */}
+      {activityLog.length > 0 && (
+        <ActivityLog entries={activityLog} streaming={streaming} />
+      )}
+
+      {/* Detected language badge */}
+      {detectedLanguage && (
+        <div className="flex items-center gap-2 -mt-4">
+          <span className="text-xs text-gray-400 dark:text-gray-500">Detected language:</span>
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400 capitalize">
+            {detectedLanguage}
+          </span>
+        </div>
+      )}
+
+      {/* Error banner */}
+      {errorMessage && (
+        <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
+          <span>{errorMessage}</span>
           <button
             type="button"
-            onClick={() => setDarkMode((d) => !d)}
-            className="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-            aria-label="Toggle light/dark mode"
+            onClick={() => setErrorMessage('')}
+            className="shrink-0 text-red-400 hover:text-red-600 dark:hover:text-red-300"
+            aria-label="Dismiss"
           >
-            {darkMode ? <SunIcon /> : <MoonIcon />}
+            ✕
           </button>
         </div>
+      )}
 
-        {/* Description */}
-        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed -mt-4">
-          Submit code for review. Three agents collaborate in sequence: the Reviewer identifies
-          issues, the Fixer corrects them, and the Evaluator scores the fix for correctness —
-          triggering a second pass if the score falls short.
-        </p>
+      {/* Results */}
+      {hasResults && (
+        <div className="space-y-6">
+          {reviewerData && (
+            <CollapsiblePanel label="Reviewer">
+              <ReviewerPanel data={reviewerData} />
+            </CollapsiblePanel>
+          )}
 
-        {/* Input */}
-        <Panel>
-          <CodeInput onSubmit={handleSubmit} streaming={streaming} />
-        </Panel>
+          {fixerData && (
+            <CollapsiblePanel label="Fixer">
+              <FixerPanel
+                data={fixerData}
+                language={detectedLanguage}
+                isRetry={fixPassCount > 1}
+              />
+            </CollapsiblePanel>
+          )}
 
-        {/* Activity log */}
-        {activityLog.length > 0 && (
-          <ActivityLog entries={activityLog} streaming={streaming} />
-        )}
-
-        {/* Detected language badge */}
-        {detectedLanguage && (
-          <div className="flex items-center gap-2 -mt-4">
-            <span className="text-xs text-gray-400 dark:text-gray-500">Detected language:</span>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400 capitalize">
-              {detectedLanguage}
-            </span>
-          </div>
-        )}
-
-        {/* Error banner */}
-        {errorMessage && (
-          <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
-            <span>{errorMessage}</span>
-            <button
-              type="button"
-              onClick={() => setErrorMessage('')}
-              className="shrink-0 text-red-400 hover:text-red-600 dark:hover:text-red-300"
-              aria-label="Dismiss"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-
-        {/* Results */}
-        {hasResults && (
-          <div className="space-y-6">
-            {reviewerData && (
-              <CollapsiblePanel label="Reviewer">
-                <ReviewerPanel data={reviewerData} />
-              </CollapsiblePanel>
-            )}
-
-            {fixerData && (
-              <CollapsiblePanel label="Fixer">
-                <FixerPanel
-                  data={fixerData}
-                  language={detectedLanguage}
-                  isRetry={fixPassCount > 1}
-                />
-              </CollapsiblePanel>
-            )}
-
-            {evaluatorData && (
-              <Panel>
-                <EvaluatorPanel data={evaluatorData} isRetrying={isRetrying} />
-              </Panel>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Footer attribution */}
-      <div className="fixed bottom-4 right-4 text-right select-none leading-tight">
-        <p className="text-xs text-gray-400 dark:text-gray-700">Created by</p>
-        <p className="text-xs font-medium text-gray-400 dark:text-gray-500">Eric Holt</p>
-      </div>
+          {evaluatorData && (
+            <Panel>
+              <EvaluatorPanel data={evaluatorData} isRetrying={isRetrying} />
+            </Panel>
+          )}
+        </div>
+      )}
     </div>
+  )
+
+  return (
+    <AppShell darkMode={darkMode} setDarkMode={setDarkMode}>
+      <Routes>
+        <Route path="/" element={mainContent} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </AppShell>
   )
 }
