@@ -10,6 +10,8 @@ pinned: false
 
 # AgentMesh
 
+[![CI](https://github.com/eholt723/agentmesh/actions/workflows/ci.yml/badge.svg)](https://github.com/eholt723/agentmesh/actions/workflows/ci.yml)
+
 A full-stack multi-agent AI system that reviews submitted code, fixes identified issues, and evaluates the quality of the fix — streaming every agent decision and handoff to the browser in real time.
 
 Three specialized agents collaborate via a [LangGraph](https://github.com/langchain-ai/langgraph) StateGraph. The Evaluator can reject the Fixer's output and trigger a second fix pass, making this a true multi-agent loop — not a single agent with multiple nodes.

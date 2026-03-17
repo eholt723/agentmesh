@@ -104,7 +104,7 @@ export default function About() {
             'React frontend with syntax highlighting, collapsible panels, dark mode, and an activity log with elapsed timestamps',
             'Tenacity retry logic on all Groq API calls with exponential backoff',
             'Automated language detection — heuristic fallback with LLM confirmation',
-            'CLI test runner in tests/ for pipeline validation without a browser',
+            'pytest suite covering Pydantic schema validation, fixer XML parser edge cases, graph routing logic, and the SSE endpoint (mocked graph — no API keys needed); separate E2E test class for live pipeline validation',
           ].map((item) => (
             <li key={item} className="flex gap-2 text-sm text-gray-600 dark:text-gray-400">
               <span className="text-cyan-500 shrink-0 mt-0.5">✓</span>
