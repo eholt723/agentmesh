@@ -34,7 +34,7 @@ Submitted Code
                                        ▲                                   ▼
                                        │ retry (max 2)             ┌───────────┐
                                        └───────────────────────────│ Evaluator │
-                                                                    └───────────┘
+                                                                   └───────────┘
                                                                           │
                                                                pass / fail / retry
 ```
