@@ -39,6 +39,15 @@ Submitted Code
                                                                pass / fail / retry
 ```
 
+| Layer | Responsibility |
+|---|---|
+| Browser | Renders result panels; streams SSE events via `useSSEStream.js` |
+| FastAPI endpoint | Validates input, opens SSE response, fans out agent updates |
+| LangGraph StateGraph | Compiles the agent graph; routes the conditional retry edge |
+| Reviewer | Analyzes code; produces a structured issue list with line refs and severity |
+| Fixer | Applies fixes; returns corrected code and a changelog; accepts evaluator feedback on retry |
+| Evaluator | Scores the fix across correctness, completeness, and code quality; decides pass / fail / retry |
+
 ### Agents
 
 | Agent | Input | Output |
@@ -58,21 +67,17 @@ If overall score is 50–69, the Evaluator triggers a retry back to the Fixer wi
 
 ## Tech Stack
 
-**Backend**
-- Python 3.11, FastAPI, LangGraph
-- Groq (llama-3.3-70b-versatile) via `langchain-groq`
-- SSE streaming via `StreamingResponse`
-- Tenacity retry on all Groq calls
-- Stateless — no database, no sessions
-
-**Frontend**
-- React 18, Vite, Tailwind CSS
-- Syntax highlighting via highlight.js (core only — 6 languages)
-- Fetch-based SSE reader with file upload support
-
-**Deployment**
-- Multi-stage Docker build (Vite frontend bundled into FastAPI static dir)
-- Hugging Face Spaces (Docker SDK), port 7860
+| Layer | Technology |
+|---|---|
+| Agent orchestration | LangGraph StateGraph |
+| LLM | Groq — `llama-3.3-70b-versatile` |
+| Backend | FastAPI, Python 3.11 |
+| Schema validation | Pydantic v2, Pydantic Settings |
+| Reliability | Tenacity (exponential backoff on all Groq calls) |
+| Real-time | Server-Sent Events via `StreamingResponse` |
+| Frontend | React 18, Vite 5, Tailwind CSS 3 |
+| Syntax highlighting | highlight.js 11 (slimmed to 7 languages) |
+| Hosting | Hugging Face Spaces (Docker SDK) |
 
 ---
 
@@ -179,30 +184,44 @@ language=python
 ```
 agentmesh/
 ├── backend/
-│   ├── main.py              # FastAPI app, /review/stream endpoint
-│   ├── graph.py             # LangGraph StateGraph + conditional retry edge
-│   ├── models.py            # Pydantic schemas for state and all agent outputs
+│   ├── main.py              # FastAPI app, /review/stream endpoint, SSE streaming
+│   ├── graph.py             # LangGraph StateGraph + conditional retry edge (_should_retry)
+│   ├── models.py            # Pydantic schemas for AgentState and all agent outputs
 │   ├── config.py            # Pydantic settings (GROQ_API_KEY, GROQ_MODEL, PORT)
 │   ├── agents/
-│   │   ├── reviewer.py
-│   │   ├── fixer.py
-│   │   └── evaluator.py
+│   │   ├── reviewer.py      # Analyzes code; returns structured issue list via JSON mode
+│   │   ├── fixer.py         # Applies fixes; parses XML response (_parse_fixer_response)
+│   │   └── evaluator.py     # Scores fix; emits pass / fail / retry decision via JSON mode
 │   └── requirements.txt
 ├── frontend/
+│   ├── index.html
+│   ├── vite.config.js       # Vite config + /review proxy to backend in dev
 │   └── src/
-│       ├── App.jsx
+│       ├── App.jsx           # Router, layout, dark mode state
 │       ├── components/
-│       │   ├── CodeInput.jsx       # paste + file upload, language selector
-│       │   ├── ReviewerPanel.jsx   # issue list with severity badges
-│       │   ├── FixerPanel.jsx      # syntax-highlighted fixed code + changelog
-│       │   ├── EvaluatorPanel.jsx  # score rings, pass/fail verdict, retry state
-│       │   └── ActivityLog.jsx     # live agent handoff trace
-│       └── hooks/
-│           └── useSSEStream.js
+│       │   ├── CodeInput.jsx       # Paste + file upload, language selector
+│       │   ├── ReviewerPanel.jsx   # Issue list with severity badges
+│       │   ├── FixerPanel.jsx      # Syntax-highlighted fixed code + changelog
+│       │   ├── EvaluatorPanel.jsx  # Score rings, pass/fail verdict, retry indicator
+│       │   └── ActivityLog.jsx     # Live agent handoff trace with elapsed timestamps
+│       ├── hooks/
+│       │   └── useSSEStream.js     # Fetch-based SSE reader; parses typed events
+│       └── pages/
+│           └── About.jsx           # /about route — pipeline overview and tech stack
 ├── tests/
-│   ├── test_pipeline.py     # CLI end-to-end test, pretty-prints SSE stream
-│   └── samples/             # buggy code files for testing
-├── Dockerfile               # multi-stage: Node build → Python runtime
+│   ├── conftest.py          # Shared fixtures; injects dummy GROQ_API_KEY for unit tests
+│   ├── test_pipeline.py     # CLI end-to-end runner; pretty-prints SSE stream
+│   ├── unit/                # 54 unit tests — no API keys required
+│   │   ├── test_models.py         # Pydantic schema validation
+│   │   ├── test_fixer_parser.py   # _parse_fixer_response() including edge cases
+│   │   ├── test_graph_routing.py  # _should_retry() across all decisions and iterations
+│   │   └── test_api.py            # SSE endpoint with mocked graph
+│   └── samples/             # Buggy code files used for testing (Python, JS)
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # GitHub Actions: runs pytest tests/unit/ on push / PR to main
+├── Dockerfile               # Multi-stage: Node build → Python runtime
+├── pyproject.toml           # pytest config, asyncio_mode, dev dependencies
 └── .env.example
 ```
 
