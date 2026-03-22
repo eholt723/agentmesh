@@ -227,6 +227,26 @@ agentmesh/
 
 ---
 
+## Design Decisions
+
+- **Fixer uses XML tags instead of JSON mode.** The Reviewer and Evaluator both use `with_structured_output(..., method="json_mode")`, but the Fixer cannot — embedding source code inside a JSON string value reliably breaks because code contains unescaped quotes, backslashes, and multi-line constructs that corrupt the payload. Instead, the Fixer returns a free-form response and `_parse_fixer_response()` extracts content from `<fixed_code>` and `<changelog>` XML tags, which have no escaping requirements. The alternative (post-processing to escape before parsing) adds fragile string manipulation for no gain.
+
+- **Frontend is bundled into the backend container as static files.** The Dockerfile builds the React/Vite frontend in a Node stage and copies the output into `backend/static/`, which FastAPI serves via `StaticFiles`. A separate container or CDN-hosted frontend makes sense in production but requires either a reverse proxy or CORS configuration. For a free-tier single-container deploy on Hugging Face Spaces, one server eliminates CORS, simplifies the deploy target, and means there's only one URL to manage.
+
+- **The backend is fully stateless.** There's no database, no review history, and no per-user state. Every request is self-contained, which keeps cold starts fast and removes any storage dependency on the free tier. For a demo where each run is independent and users don't need to revisit past reviews, stateless is the right scope — adding persistence here would be complexity with no user-facing payoff.
+
+---
+
+## Future Improvements
+
+- **Authentication and per-user rate limiting** — CORS is currently open (`allow_origins=["*"]`) with no API key or session layer; acceptable for a public demo, not for a multi-tenant deployment.
+- **Token-by-token streaming within agents** — SSE events are emitted once per agent completion, not per token. True token streaming would require switching LangGraph stream mode and forwarding token chunks from Groq as they arrive.
+- **Persistent review history** — results aren't stored; users can't revisit a prior run. A lightweight database layer would enable history, cross-run diffing, and shareable permalink URLs.
+- **Async job mode for large inputs** — long-running reviews hold an SSE connection open for the full duration. A task queue with status polling would be more robust than a persistent HTTP stream for larger files or slower models.
+- **Expanded language support in highlight.js** — currently registered for 7 languages to keep the bundle at 204 KB (down from 1095 KB). Supporting more languages would require weighing bundle growth against coverage for less common submissions.
+
+---
+
 ## Portfolio Context
 
 AgentMesh demonstrates a distinct architectural pattern from prior projects:

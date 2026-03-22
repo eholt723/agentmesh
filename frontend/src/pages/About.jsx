@@ -22,6 +22,19 @@ function PipelineStep({ number, title, description, last }) {
 }
 
 // ------------------------------
+// Use case card
+// ------------------------------
+
+function UseCaseCard({ title, description }) {
+  return (
+    <div className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-4">
+      <p className="text-sm font-semibold text-gray-100">{title}</p>
+      <p className="text-xs text-gray-400 mt-1 leading-relaxed">{description}</p>
+    </div>
+  )
+}
+
+// ------------------------------
 // Tech card
 // ------------------------------
 
@@ -87,6 +100,42 @@ export default function About() {
             title="Retry if needed"
             description="If the score falls short, the pipeline loops back to the Fixer for a second pass. This retry logic is built into the graph itself, not bolted on as an afterthought."
             last
+          />
+        </div>
+      </section>
+
+      {/* Where This Gets Used */}
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Where This Gets Used</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+          Most teams have content that gets reviewed and revised — but the review happens inconsistently,
+          slowly, or not at all. A pipeline that can catch issues, apply corrections, and verify the
+          result before anything reaches the end user has value well beyond code. Here's where it fits.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <UseCaseCard
+            title="Customer Support"
+            description="Review agent responses for accuracy and tone before they're sent. Flag answers that contradict policy or leave the issue unresolved."
+          />
+          <UseCaseCard
+            title="Content and Marketing"
+            description="Check drafts for brand voice, factual accuracy, and compliance with style guidelines. Automatically revise and re-score before publishing."
+          />
+          <UseCaseCard
+            title="Sales Proposals"
+            description="Analyze proposal drafts for missing value statements, pricing errors, or off-message claims. Return a corrected version with a change log for rep review."
+          />
+          <UseCaseCard
+            title="HR Policy Documents"
+            description="Scan new or revised HR documents for ambiguous language, missing clauses, or legal risk. Generate a corrected draft and score completeness."
+          />
+          <UseCaseCard
+            title="Contract Review"
+            description="Identify non-standard clauses, missing indemnity language, or jurisdiction mismatches in contract drafts — then apply and evaluate targeted corrections."
+          />
+          <UseCaseCard
+            title="Internal Audit Reports"
+            description="Review draft audit findings for completeness, consistency with supporting evidence, and required disclosure language before final sign-off."
           />
         </div>
       </section>
