@@ -104,38 +104,39 @@ export default function About() {
         </div>
       </section>
 
-      {/* Where This Gets Used */}
+      {/* Where This Pattern Gets Applied */}
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Where This Gets Used</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Where This Pattern Gets Applied</h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-          Most teams have content that gets reviewed and revised — but the review happens inconsistently,
-          slowly, or not at all. A pipeline that can catch issues, apply corrections, and verify the
-          result before anything reaches the end user has value well beyond code. Here's where it fits.
+          The review-fix-evaluate loop running here on code is the same architecture that powers
+          production AI workflows across industries. In each case, one agent analyzes, another
+          corrects, and a third verifies before the result goes anywhere. Here's what that looks
+          like outside of code.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <UseCaseCard
             title="Customer Support"
-            description="Review agent responses for accuracy and tone before they're sent. Flag answers that contradict policy or leave the issue unresolved."
+            description="An agent reviews draft responses for accuracy and tone. A second agent rewrites flagged responses; a third scores the revision before it reaches the customer."
           />
           <UseCaseCard
             title="Content and Marketing"
-            description="Check drafts for brand voice, factual accuracy, and compliance with style guidelines. Automatically revise and re-score before publishing."
+            description="An agent audits copy for brand voice and factual accuracy. A second agent revises problem areas; a third evaluates whether the corrected draft meets the brief."
           />
           <UseCaseCard
             title="Sales Proposals"
-            description="Analyze proposal drafts for missing value statements, pricing errors, or off-message claims. Return a corrected version with a change log for rep review."
+            description="An agent flags missing value statements, pricing inconsistencies, or off-message claims. A second agent applies corrections; a third scores the proposal before it goes to the client."
           />
           <UseCaseCard
             title="HR Policy Documents"
-            description="Scan new or revised HR documents for ambiguous language, missing clauses, or legal risk. Generate a corrected draft and score completeness."
+            description="An agent scans revised policy drafts for ambiguous language or missing clauses. A second agent rewrites flagged sections; a third evaluates completeness and legal coverage."
           />
           <UseCaseCard
             title="Contract Review"
-            description="Identify non-standard clauses, missing indemnity language, or jurisdiction mismatches in contract drafts — then apply and evaluate targeted corrections."
+            description="An agent identifies non-standard clauses or missing provisions. A second agent applies targeted corrections; a third verifies the revised draft against the original requirements."
           />
           <UseCaseCard
             title="Internal Audit Reports"
-            description="Review draft audit findings for completeness, consistency with supporting evidence, and required disclosure language before final sign-off."
+            description="An agent reviews draft findings for gaps, inconsistencies, or missing disclosure language. A second agent revises; a third scores the report before it goes to sign-off."
           />
         </div>
       </section>
