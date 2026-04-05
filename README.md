@@ -10,7 +10,7 @@ pinned: false
 
 # AgentMesh
 
-[![CI](https://github.com/eholt723/agentmesh/actions/workflows/ci.yml/badge.svg)](https://github.com/eholt723/agentmesh/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/eholt723/agentmesh/actions/workflows/ci.yml/badge.svg)](https://github.com/eholt723/agentmesh/actions/workflows/ci.yml)
 
 A full-stack multi-agent AI system that reviews submitted code, fixes identified issues, and evaluates the quality of the fix — streaming every agent decision and handoff to the browser in real time.
 
@@ -78,6 +78,12 @@ If overall score is 50–69, the Evaluator triggers a retry back to the Fixer wi
 | Frontend | React 18, Vite 5, Tailwind CSS 3 |
 | Syntax highlighting | highlight.js 11 (slimmed to 7 languages) |
 | Hosting | Hugging Face Spaces (Docker SDK) |
+
+---
+
+## Deployment
+
+Every push to `main` runs the CI/CD pipeline. If all unit tests pass, the workflow automatically deploys to Hugging Face Spaces — no manual push required. The live app is at [https://huggingface.co/spaces/eholt723/AgentMesh](https://huggingface.co/spaces/eholt723/AgentMesh). Cold starts on the free tier can take 1–3 minutes if the container has been idle.
 
 ---
 
@@ -219,7 +225,7 @@ agentmesh/
 │   └── samples/             # Buggy code files used for testing (Python, JS)
 ├── .github/
 │   └── workflows/
-│       └── ci.yml           # GitHub Actions: runs pytest tests/unit/ on push / PR to main
+│       └── ci.yml           # GitHub Actions: runs unit tests, then deploys to HF Spaces on push to main
 ├── Dockerfile               # Multi-stage: Node build → Python runtime
 ├── pyproject.toml           # pytest config, asyncio_mode, dev dependencies
 └── .env.example
