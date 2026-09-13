@@ -70,7 +70,7 @@ If overall score is 50–69, the Evaluator triggers a retry back to the Fixer wi
 | Layer | Technology |
 |---|---|
 | Agent orchestration | LangGraph StateGraph |
-| LLM | Groq — `llama-3.3-70b-versatile` |
+| LLM | Groq — `openai/gpt-oss-120b` |
 | Backend | FastAPI, Python 3.11 |
 | Schema validation | Pydantic v2, Pydantic Settings |
 | Reliability | Tenacity (exponential backoff on all Groq calls) |

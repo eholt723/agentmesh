@@ -101,7 +101,7 @@ function AppShell({ darkMode, setDarkMode, children }) {
             </h1>
             <p className="text-sm text-gray-500">
               Reviewer · Fixer · Evaluator
-              <span className="text-gray-400 dark:text-gray-600"> · llama-3.3-70b · Groq</span>
+              <span className="text-gray-400 dark:text-gray-600"> · gpt-oss-120b · Groq</span>
             </p>
           </div>
 

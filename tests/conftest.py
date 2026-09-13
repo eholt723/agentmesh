@@ -13,7 +13,7 @@ import sys
 # ------------------------------
 
 os.environ.setdefault("GROQ_API_KEY", "test-key-unit-tests")
-os.environ.setdefault("GROQ_MODEL", "llama-3.3-70b-versatile")
+os.environ.setdefault("GROQ_MODEL", "openai/gpt-oss-120b")
 
 # Add backend/ to path so tests can import backend modules directly
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))

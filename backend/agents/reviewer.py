@@ -42,6 +42,8 @@ async def reviewer_node(state: AgentState) -> dict:
     llm = ChatGroq(
         model=settings.groq_model,
         api_key=settings.groq_api_key,
+        reasoning_effort="low",
+        include_reasoning=False,
     ).with_structured_output(ReviewerOutput, method="json_mode")
 
     language_hint = ""

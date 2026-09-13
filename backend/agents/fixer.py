@@ -86,6 +86,8 @@ async def fixer_node(state: AgentState) -> dict:
     llm = ChatGroq(
         model=settings.groq_model,
         api_key=settings.groq_api_key,
+        reasoning_effort="low",
+        include_reasoning=False,
     )
 
     issues_text = _format_issues(state["reviewer_output"].issues)

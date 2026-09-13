@@ -170,7 +170,7 @@ export default function About() {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <TechCard name="LangGraph" role="Multi-agent StateGraph orchestration" />
           <TechCard name="FastAPI" role="Backend API and SSE streaming" />
-          <TechCard name="Groq" role="LLM inference (llama-3.3-70b)" />
+          <TechCard name="Groq" role="LLM inference (gpt-oss-120b)" />
           <TechCard name="React + Vite" role="Frontend framework and build tool" />
           <TechCard name="Tailwind CSS" role="Styling and dark mode" />
           <TechCard name="highlight.js" role="Syntax highlighting in Fixer panel" />
