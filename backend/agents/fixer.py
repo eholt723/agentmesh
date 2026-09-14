@@ -1,12 +1,9 @@
-import json
-import re
-
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from config import settings
-from models import AgentState, FixEntry, FixerOutput, Issue
+from models import AgentState, FixerOutput, Issue
 
 SYSTEM_PROMPT = """You are an expert software engineer tasked with fixing code issues identified by a code reviewer.
 
@@ -21,14 +18,13 @@ Your job:
 - Do not introduce new bugs or change working functionality
 - For each fix, document what you changed and which issue it resolves
 
-Return your response in EXACTLY this format — no other text before or after:
-
-<fixed_code>
-[the complete fixed source code, exactly as it should appear in the file]
-</fixed_code>
-<changelog>
-[{"issue_ref": "CRITICAL L12", "change_made": "description of what was changed and why"}, ...]
-</changelog>"""
+Respond with valid JSON matching this schema:
+{
+  "fixed_code": "<the complete fixed source code, exactly as it should appear in the file>",
+  "changelog": [
+    {"issue_ref": "<e.g. CRITICAL L12>", "change_made": "<description of what was changed and why>"}
+  ]
+}"""
 
 SYSTEM_PROMPT_RETRY = """You are an expert software engineer fixing code issues. This is a RETRY pass.
 
@@ -37,37 +33,18 @@ in addition to the original reviewer issues.
 
 Fix ALL critical and warning issues and address the evaluator's specific concerns.
 
-Return your response in EXACTLY this format — no other text before or after:
-
-<fixed_code>
-[the complete fixed source code, exactly as it should appear in the file]
-</fixed_code>
-<changelog>
-[{"issue_ref": "reference to the original issue", "change_made": "description of what was changed and why"}, ...]
-</changelog>"""
+Respond with valid JSON matching this schema:
+{
+  "fixed_code": "<the complete fixed source code, exactly as it should appear in the file>",
+  "changelog": [
+    {"issue_ref": "<reference to the original issue>", "change_made": "<description of what was changed and why>"}
+  ]
+}"""
 
 
 @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=2, min=5, max=60))
 async def _invoke_fixer(llm, messages):
     return await llm.ainvoke(messages)
-
-
-def _parse_fixer_response(content: str) -> FixerOutput:
-    # Extract fixed code between <fixed_code> tags
-    code_match = re.search(r"<fixed_code>\n?(.*?)\n?</fixed_code>", content, re.DOTALL)
-    fixed_code = code_match.group(1) if code_match else content
-
-    # Extract changelog JSON between <changelog> tags
-    changelog: list[FixEntry] = []
-    log_match = re.search(r"<changelog>\n?(.*?)\n?</changelog>", content, re.DOTALL)
-    if log_match:
-        try:
-            entries = json.loads(log_match.group(1).strip())
-            changelog = [FixEntry(**e) for e in entries]
-        except (json.JSONDecodeError, TypeError, KeyError):
-            pass
-
-    return FixerOutput(fixed_code=fixed_code, changelog=changelog)
 
 
 def _format_issues(issues: list[Issue]) -> str:
@@ -88,7 +65,7 @@ async def fixer_node(state: AgentState) -> dict:
         api_key=settings.groq_api_key,
         reasoning_effort="low",
         include_reasoning=False,
-    )
+    ).with_structured_output(FixerOutput, method="json_mode")
 
     issues_text = _format_issues(state["reviewer_output"].issues)
 
@@ -110,8 +87,7 @@ async def fixer_node(state: AgentState) -> dict:
         HumanMessage(content=human_content),
     ]
 
-    response = await _invoke_fixer(llm, messages)
-    result = _parse_fixer_response(response.content)
+    result: FixerOutput = await _invoke_fixer(llm, messages)
 
     return {
         "fixer_output": result,
